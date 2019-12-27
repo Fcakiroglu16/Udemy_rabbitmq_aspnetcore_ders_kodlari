@@ -17,7 +17,7 @@ namespace UdemyRabbitMQ.Publisher
                 {
                     channel.QueueDeclare("hello", false, false, false, null);
 
-                    string message = "Hello World";
+                    string message = "Hello  World";
 
                     var bodyByte = Encoding.UTF8.GetBytes(message);
 
