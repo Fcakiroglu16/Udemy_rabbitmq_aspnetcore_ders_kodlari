@@ -15,7 +15,7 @@ namespace UdemyRabbitMQ.Publisher
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("task_queue", durable: true, false, false, null);
+                    channel.ExchangeDeclare("logs", durable: true, type: ExchangeType.Fanout);
 
                     string message = GetMessage(args);
 
@@ -27,7 +27,7 @@ namespace UdemyRabbitMQ.Publisher
 
                         properties.Persistent = true;
 
-                        channel.BasicPublish("", routingKey: "task_queue", properties, body: bodyByte);
+                        channel.BasicPublish("logs", routingKey: "", properties, body: bodyByte);
 
                         Console.WriteLine($"Mesajınız gönderilmiştir:{message}-{i}");
                     }

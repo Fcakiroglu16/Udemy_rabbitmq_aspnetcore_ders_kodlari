@@ -17,24 +17,28 @@ namespace UdemyRabbitMQ.Consumer
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("task_queue", durable: true, exclusive: false, autoDelete: false, null);
+                    channel.ExchangeDeclare("logs", durable: true, type: ExchangeType.Fanout);
+
+                    var queueName = channel.QueueDeclare().QueueName;
+
+                    channel.QueueBind(queue: queueName, exchange: "logs", routingKey: "");
 
                     channel.BasicQos(prefetchSize: 0, prefetchCount: 1, false);
 
-                    Console.WriteLine("mesajları beliyorum....");
+                    Console.WriteLine("logları bekliyorum....");
 
                     var consumer = new EventingBasicConsumer(channel);
 
-                    channel.BasicConsume("task_queue", autoAck: false, consumer);
+                    channel.BasicConsume(queueName, false, consumer);
 
                     consumer.Received += (model, ea) =>
                          {
-                             var message = Encoding.UTF8.GetString(ea.Body);
-                             Console.WriteLine("Mesaj alındı:" + message);
+                             var log = Encoding.UTF8.GetString(ea.Body);
+                             Console.WriteLine("log alındı:" + log);
 
                              int time = int.Parse(GetMessage(args));
                              Thread.Sleep(time);
-                             Console.WriteLine("Mesaj işlendi...");
+                             Console.WriteLine("loglama bitti");
 
                              channel.BasicAck(ea.DeliveryTag, multiple: false);
                          };
