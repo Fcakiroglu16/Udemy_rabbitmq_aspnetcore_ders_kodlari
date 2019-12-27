@@ -15,20 +15,32 @@ namespace UdemyRabbitMQ.Publisher
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("hello", false, false, false, null);
+                    channel.QueueDeclare("task_queue", durable: true, false, false, null);
 
-                    string message = "Hello  World";
+                    string message = GetMessage(args);
 
-                    var bodyByte = Encoding.UTF8.GetBytes(message);
+                    for (int i = 1; i < 11; i++)
+                    {
+                        var bodyByte = Encoding.UTF8.GetBytes($"{message}-{i}");
 
-                    channel.BasicPublish("", routingKey: "hello", null, body: bodyByte);
+                        var properties = channel.CreateBasicProperties();
 
-                    Console.WriteLine("Mesajınız gönderilmiştir.");
+                        properties.Persistent = true;
+
+                        channel.BasicPublish("", routingKey: "task_queue", properties, body: bodyByte);
+
+                        Console.WriteLine($"Mesajınız gönderilmiştir:{message}-{i}");
+                    }
                 }
 
                 Console.WriteLine("Çıkış yapmak tıklayınız..");
                 Console.ReadLine();
             }
+        }
+
+        private static string GetMessage(string[] args)
+        {
+            return args[0].ToString();
         }
     }
 }
