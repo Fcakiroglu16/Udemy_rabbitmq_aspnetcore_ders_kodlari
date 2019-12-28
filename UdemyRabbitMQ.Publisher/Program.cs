@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Newtonsoft.Json;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -35,8 +36,13 @@ namespace UdemyRabbitMQ.Publisher
                     headers.Add("shape", "a4");
 
                     properties.Headers = headers;
+
+                    User u = new User() { Id = 1, Name = "Fatih", Email = "f-cakiroglu@outlook.com", Password = "1234" };
+
+                    String userSerialize = JsonConvert.SerializeObject(u);
+
                     Console.WriteLine("mesaj gönderildi");
-                    channel.BasicPublish("header-exchange", string.Empty, properties, Encoding.UTF8.GetBytes("header mesajım"));
+                    channel.BasicPublish("header-exchange", string.Empty, properties, Encoding.UTF8.GetBytes(userSerialize));
                 }
 
                 Console.WriteLine("Çıkış yapmak tıklayınız..");
