@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace UdemyRabbitMQ.Publisher
@@ -24,30 +25,18 @@ namespace UdemyRabbitMQ.Publisher
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.ExchangeDeclare("topic-exchange", durable: true, type: ExchangeType.Topic);
+                    channel.ExchangeDeclare("header-exchange", durable: true, type: ExchangeType.Headers);
 
-                    Array log_name_array = Enum.GetValues(typeof(LogNames));
+                    var properties = channel.CreateBasicProperties();
 
-                    for (int i = 1; i < 11; i++)
-                    {
-                        Random rnd = new Random();
+                    Dictionary<string, object> headers = new Dictionary<string, object>();
 
-                        LogNames log1 = (LogNames)log_name_array.GetValue(rnd.Next(log_name_array.Length));
-                        LogNames log2 = (LogNames)log_name_array.GetValue(rnd.Next(log_name_array.Length));
-                        LogNames log3 = (LogNames)log_name_array.GetValue(rnd.Next(log_name_array.Length));
+                    headers.Add("format5", "pdf");
+                    headers.Add("shape", "a4");
 
-                        string RoutingKey = $"{log1}.{log2}.{log3}";
-
-                        var bodyByte = Encoding.UTF8.GetBytes($"log={log1.ToString()}-{log2.ToString()}-{log3.ToString()}");
-
-                        var properties = channel.CreateBasicProperties();
-
-                        properties.Persistent = true;
-
-                        channel.BasicPublish("topic-exchange", routingKey: RoutingKey, properties, body: bodyByte);
-
-                        Console.WriteLine($"log mesajı gönderilmiştir=> mesaj:{RoutingKey}");
-                    }
+                    properties.Headers = headers;
+                    Console.WriteLine("mesaj gönderildi");
+                    channel.BasicPublish("header-exchange", string.Empty, properties, Encoding.UTF8.GetBytes("header mesajım"));
                 }
 
                 Console.WriteLine("Çıkış yapmak tıklayınız..");
