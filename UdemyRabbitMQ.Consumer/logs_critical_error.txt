@@ -1,0 +1,9 @@
+log=Critical
+log=Error
+log=Error
+log=Critical
+log=Error
+log=Error
+log=Critical
+log=Error
+log=Warning
